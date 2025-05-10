@@ -4,7 +4,8 @@ header("Content-Type: application/json");
 $url = parse_url(getenv('DATABASE_URL'));
 
 $host = $url["host"];
-$port = $url["port"];
+$port = isset($url["port"]) ? $url["port"] : 5432;
+
 $user = $url["user"];
 $pass = $url["pass"];
 $dbname = ltrim($url["path"], "/");
