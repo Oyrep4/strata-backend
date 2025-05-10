@@ -24,13 +24,22 @@ if (!$db) {
     exit;
 }
 
-$result = pg_query($db, "SELECT id, title, content, posted_at FROM announcements ORDER BY posted_at DESC");
+if (!$db) {
+    echo json_encode(['error' => 'Database connection failed']);
+    exit;
+}
+
+$result = pg_query($db, "SELECT * FROM announcements");
+
+if (!$result) {
+    echo json_encode(['error' => 'Query failed', 'pg_error' => pg_last_error($db)]);
+    exit;
+}
 
 $announcements = [];
-
 while ($row = pg_fetch_assoc($result)) {
     $announcements[] = $row;
 }
 
-echo json_encode($announcements);
-?>
+echo json_encode(['count' => count($announcements), 'rows' => $announcements]);
+
