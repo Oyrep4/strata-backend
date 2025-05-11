@@ -24,9 +24,6 @@ if (!$db) {
 
 $name = $_POST['name'] ?? '';
 $email = $_POST['email'] ?? '';
-$added_by = $_COOKIE['user_id'] ?? null;
-
-error_log("Adding member: $name, $email, added_by=$added_by");
 
 if (!$name || !$email) {
     echo json_encode(['success' => false, 'error' => 'Missing name or email']);
@@ -35,8 +32,8 @@ if (!$name || !$email) {
 
 $result = pg_query_params(
     $db,
-    "INSERT INTO members (name, email, added_by) VALUES ($1, $2, $3)",
-    [$name, $email, $added_by]
+    "INSERT INTO members (name, email) VALUES ($1, $2)",
+    [$name, $email]
 );
 
 if ($result) {
