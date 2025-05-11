@@ -44,3 +44,4 @@ if ($result) {
 } else {
     echo json_encode(['success' => false, 'error' => pg_last_error($db)]);
 }
+?>
