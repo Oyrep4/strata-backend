@@ -1,44 +1,45 @@
 <?php
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
-header('Content-Type: application/json');
+header("Access-Control-Allow-Credentials: true");
 
 $url = parse_url(getenv('DATABASE_URL'));
 
 $host = $url["host"];
 $port = isset($url["port"]) ? $url["port"] : 5432;
-
 $user = $url["user"];
 $pass = $url["pass"];
 $dbname = ltrim($url["path"], "/");
 
 $conn_str = "host=$host port=$port dbname=$dbname user=$user password=$pass sslmode=require";
-
 $db = pg_connect($conn_str);
 
 if (!$db) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed']);
+    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
     exit;
 }
 
 $name = $_POST['name'] ?? '';
 $email = $_POST['email'] ?? '';
+$added_by = $_COOKIE['user_id'] ?? null;
 
-if (empty($name) || empty($email)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Name and email required']);
+if (!$name || !$email) {
+    echo json_encode(['success' => false, 'error' => 'Missing name or email']);
     exit;
 }
 
-$result = pg_query_params($db, "INSERT INTO members (name, email) VALUES ($1, $2)", [$name, $email]);
+$result = pg_query_params(
+    $db,
+    "INSERT INTO members (name, email, added_by) VALUES ($1, $2, $3)",
+    [$name, $email, $added_by]
+);
 
 if ($result) {
     echo json_encode(['success' => true]);
 } else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to insert member']);
+    echo json_encode(['success' => false, 'error' => pg_last_error($db)]);
 }
 ?>
