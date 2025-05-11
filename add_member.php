@@ -4,7 +4,6 @@ header("Access-Control-Allow-Origin: https://strata-management-orcin.vercel.app"
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Credentials: true");
 
 $url = parse_url(getenv('DATABASE_URL'));
 
@@ -27,6 +26,8 @@ $name = $_POST['name'] ?? '';
 $email = $_POST['email'] ?? '';
 $added_by = $_COOKIE['user_id'] ?? null;
 
+error_log("Adding member: $name, $email, added_by=$added_by");
+
 if (!$name || !$email) {
     echo json_encode(['success' => false, 'error' => 'Missing name or email']);
     exit;
@@ -43,4 +44,3 @@ if ($result) {
 } else {
     echo json_encode(['success' => false, 'error' => pg_last_error($db)]);
 }
-?>
